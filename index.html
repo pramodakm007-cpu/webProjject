@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeakX - Speaking Practice Evaluator</title>
+    <meta name="description"
+        content="AI-powered speaking practice evaluator that assesses clarity, confidence, and communication skills in real-time">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-grid"></div>
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <h1>SpeakX<span class="logo-subtitle">Evaluator</span></h1>
+            </div>
+            <div class="header-status">
+                <div class="status-indicator" id="systemStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">System Ready</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Video Section -->
+            <section class="video-section">
+                <div class="video-container">
+                    <video id="videoElement" autoplay playsinline></video>
+                    <canvas id="faceCanvas"></canvas>
+                    <div class="video-overlay" id="videoOverlay">
+                        <div class="overlay-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M23 7L16 12L23 17V7Z" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <rect x="1" y="5" width="15" height="14" rx="2" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <p>Click "Start Practice" to begin</p>
+                    </div>
+                </div>
+
+                <!-- Audio Input Monitor -->
+                <div class="audio-monitor-section">
+                    <div class="audio-monitor-header">
+                        <h3>🎤 Audio Input Monitor</h3>
+                        <span class="audio-status" id="audioStatus">Monitoring when practice starts</span>
+                    </div>
+                    <div class="audio-visualizer">
+                        <canvas id="audioCanvas"></canvas>
+                        <div class="visualizer-label">
+                            <span>Waveform</span>
+                            <span id="volumeLevel" class="db-display">0 dB</span>
+                        </div>
+                    </div>
+                    <div class="audio-level-bar">
+                        <div class="level-bar-container">
+                            <div class="level-bar-fill" id="audioLevelBar"></div>
+                        </div>
+                        <div class="level-indicators">
+                            <span class="level-mark">0 dB (Quiet)</span>
+                            <span class="level-mark">20 dB</span>
+                            <span class="level-mark">40 dB</span>
+                            <span class="level-mark loud">60 dB (Loud)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Panel -->
+                <div class="control-panel">
+                    <button class="btn btn-primary" id="startBtn">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <polygon points="10,8 16,12 10,16" fill="currentColor" />
+                        </svg>
+                        Start Practice
+                    </button>
+                    <button class="btn btn-secondary" id="stopBtn" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <rect x="9" y="9" width="6" height="6" fill="currentColor" />
+                        </svg>
+                        Stop Practice
+                    </button>
+                    <button class="btn btn-tertiary" id="evaluateBtn" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path
+                                d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Evaluate Now
+                    </button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section">
+                <!-- Detection Status - Only Face Detection -->
+                <div class="detection-status">
+                    <div class="detection-card" id="faceDetection">
+                        <div class="detection-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" />
+                                <path d="M6 21V19C6 16.7909 7.79086 15 10 15H14C16.2091 15 18 16.7909 18 19V21"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <div class="detection-info">
+                            <span class="detection-label">Face Detection</span>
+                            <span class="detection-value" id="faceStatus">Not Detected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evaluation Results -->
+                <div class="evaluation-results" id="evaluationResults">
+                    <h2>Evaluation Results</h2>
+                    <div class="results-table-container">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Clarity</th>
+                                    <th>Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="score-cell">
+                                            <span class="score-value" id="clarityScore">-</span>
+                                            <div class="score-bar">
+                                                <div class="score-fill" id="clarityBar"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="score-cell">
+                                            <span class="score-value" id="confidenceScore">-</span>
+                                            <div class="score-bar">
+                                                <div class="score-fill" id="confidenceBar"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Feedback Section -->
+                    <div class="feedback-section" id="feedbackSection">
+                        <h3>Personalized Feedback</h3>
+                        <div class="feedback-cards">
+                            <div class="feedback-card clarity-feedback">
+                                <div class="feedback-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <div class="feedback-content">
+                                    <h4>Clarity Improvement</h4>
+                                    <p id="clarityFeedback">Start practicing to receive feedback...</p>
+                                </div>
+                            </div>
+                            <div class="feedback-card confidence-feedback">
+                                <div class="feedback-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <div class="feedback-content">
+                                    <h4>Confidence Boost</h4>
+                                    <p id="confidenceFeedback">Start practicing to receive feedback...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Stats -->
+                <div class="session-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Session Duration</span>
+                            <span class="stat-value" id="sessionDuration">00:00</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Evaluations</span>
+                            <span class="stat-value" id="evaluationCount">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Avg. Clarity</span>
+                            <span class="stat-value" id="avgClarity">-</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💪</div>
+                        <div class="stat-info">
+                            <span class="stat-label">Avg. Confidence</span>
+                            <span class="stat-value" id="avgConfidence">-</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Face Detection Library -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+    <script src="app.js?v=CLEAN_2024"></script>
+</body>
+
+</html>
